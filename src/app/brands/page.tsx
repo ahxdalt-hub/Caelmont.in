@@ -2,7 +2,7 @@ import { VentureDetail } from "@/components/brands/VentureDetail";
 import { FinalCta } from "@/components/home/FinalCta";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { pageMetadata } from "@/config/seo";
-import { ventures } from "@/config/ventures";
+import { venturesInOrder } from "@/config/ventures";
 
 export const metadata = pageMetadata({
   title: "Brands",
@@ -26,7 +26,7 @@ export default function BrandsPage() {
         lead="CAELMONT operates a small portfolio of independent software brands. Each venture is built and run separately — with its own product, its own audience, and its own website when the time comes."
       />
 
-      {ventures.map((venture, i) => (
+      {venturesInOrder().map((venture, i) => (
         <VentureDetail
           key={venture.slug}
           venture={venture}

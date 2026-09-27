@@ -3,6 +3,7 @@ import { Inter, Instrument_Serif, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
 import { ogImage } from "@/config/images";
+import { Analytics } from "@/components/analytics/Analytics";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,20 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
+/**
+ * Organization structured data. Only verifiable facts from siteConfig — no
+ * founding date, address, or accolades are invented.
+ */
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: siteConfig.name,
+  url: siteConfig.url,
+  email: siteConfig.email,
+  logo: `${siteConfig.url}/icon.svg`,
+  description: siteConfig.description,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -74,6 +89,11 @@ export default function RootLayout({
         <Header />
         <main id="main">{children}</main>
         <Footer />
+        <Analytics />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
       </body>
     </html>
   );

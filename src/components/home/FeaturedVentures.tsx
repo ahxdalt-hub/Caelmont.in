@@ -4,7 +4,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { ArrowLink } from "@/components/shared/ArrowLink";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { StatusPill } from "@/components/shared/StatusPill";
-import { ventures, type Venture } from "@/config/ventures";
+import { featuredVentures, type Venture } from "@/config/ventures";
 import { cn } from "@/lib/utils";
 
 export function FeaturedVentures() {
@@ -24,7 +24,7 @@ export function FeaturedVentures() {
         </div>
 
         <div className="mt-16 space-y-24 md:mt-24 md:space-y-32">
-          {ventures.map((venture, i) => (
+          {featuredVentures().map((venture, i) => (
             <VenturePanel
               key={venture.slug}
               venture={venture}

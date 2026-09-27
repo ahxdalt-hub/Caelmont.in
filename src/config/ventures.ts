@@ -3,6 +3,8 @@ import { images, type ImageRef } from "./images";
 export type VentureStatus = "in-development" | "coming-soon";
 
 export interface Venture {
+  /** Stable identifier — equal to the URL slug and the /brands anchor id. */
+  id: string;
   /** URL slug — also used as the /brands anchor id. */
   slug: string;
   /** Brand name as shown publicly. */
@@ -33,11 +35,31 @@ export interface Venture {
   websiteLabel: string;
   /** Note about the working title, when the name is descriptive only. */
   nameNote?: string;
+  /** Whether the venture is highlighted in shorter, featured listings. */
+  featured: boolean;
+  /** Display order (ascending) across every venture listing. */
+  order: number;
   image: ImageRef;
+}
+
+/** A venture has a live product website exactly when a URL is configured. */
+export function isWebsiteAvailable(venture: Venture): boolean {
+  return venture.websiteUrl !== null && venture.websiteUrl.trim().length > 0;
+}
+
+/** All ventures in their configured display order. */
+export function venturesInOrder(): Venture[] {
+  return [...ventures].sort((a, b) => a.order - b.order);
+}
+
+/** Featured ventures (home page etc.), in display order. */
+export function featuredVentures(): Venture[] {
+  return venturesInOrder().filter((venture) => venture.featured);
 }
 
 export const ventures: Venture[] = [
   {
+    id: "veyra",
     slug: "veyra",
     name: "VEYRA",
     category: "Business systems · software",
@@ -63,9 +85,12 @@ export const ventures: Venture[] = [
     statusLabel: "In development",
     websiteUrl: null,
     websiteLabel: "Product website — coming soon",
+        featured: true,
+    order: 1,
     image: images.ventures.veyra,
   },
   {
+    id: "prosventa",
     slug: "prosventa",
     name: "PROSVENTA",
     category: "B2B sales intelligence SaaS",
@@ -88,9 +113,12 @@ export const ventures: Venture[] = [
     statusLabel: "In development",
     websiteUrl: null,
     websiteLabel: "Product website — coming soon",
+        featured: true,
+    order: 2,
     image: images.ventures.prosventa,
   },
   {
+    id: "pixora",
     slug: "pixora",
     name: "PIXORA",
     category: "Local AI software",
@@ -112,9 +140,12 @@ export const ventures: Venture[] = [
     statusLabel: "In development",
     websiteUrl: null,
     websiteLabel: "Product website — coming soon",
+        featured: true,
+    order: 3,
     image: images.ventures.pixora,
   },
   {
+    id: "ai-business-agents",
     slug: "ai-business-agents",
     name: "AI Business Agents",
     category: "AI · business automation SaaS",
@@ -136,6 +167,8 @@ export const ventures: Venture[] = [
     websiteLabel: "Product website — coming soon",
     nameNote:
       "\u201CAI Business Agents\u201D is a descriptive working title — a brand name will be introduced when the venture is formalized.",
+        featured: false,
+    order: 4,
     image: images.ventures["ai-business-agents"],
   },
 ];

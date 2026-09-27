@@ -5,7 +5,7 @@ import { FounderProfile } from "@/components/shared/FounderProfile";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { pageMetadata } from "@/config/seo";
 import { siteConfig } from "@/config/site";
-import { ventures } from "@/config/ventures";
+import { venturesInOrder } from "@/config/ventures";
 
 export const metadata = pageMetadata({
   title: "About",
@@ -110,7 +110,7 @@ export default function AboutPage() {
             </Reveal>
             <Reveal delay={0.16}>
               <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3">
-                {ventures.map((venture) => (
+                {venturesInOrder().map((venture) => (
                   <Link
                     key={venture.slug}
                     href={`/brands#${venture.slug}`}

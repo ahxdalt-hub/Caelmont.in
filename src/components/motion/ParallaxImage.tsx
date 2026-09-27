@@ -9,6 +9,12 @@ import { cn } from "@/lib/utils";
 interface ParallaxImageProps {
   image: ImageRef;
   className?: string;
+  /**
+   * Fill the nearest positioned ancestor (renders `absolute inset-0`) instead
+   * of sizing itself. Never pass position utilities through `className` — this
+   * keeps exactly one position class on the frame.
+   */
+  fill?: boolean;
   imgClassName?: string;
   sizes?: string;
   priority?: boolean;
@@ -30,6 +36,7 @@ const OFFSETS = {
 export function ParallaxImage({
   image,
   className,
+  fill = false,
   imgClassName,
   sizes = "100vw",
   priority = false,
@@ -47,7 +54,10 @@ export function ParallaxImage({
   const y = useTransform(scrollYProgress, [0, 1], [`${-travel}%`, `${travel}%`]);
 
   return (
-    <div ref={ref} className={cn("relative overflow-hidden", className)}>
+    <div
+      ref={ref}
+      className={cn(fill ? "absolute inset-0" : "relative", "overflow-hidden", className)}
+    >
       <motion.div
         className="absolute inset-0"
         style={reduceMotion ? { scale: baseScale } : { y, scale: baseScale }}

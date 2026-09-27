@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { contactConfig } from "@/config/contact";
-import { siteConfig } from "@/config/site";
+import { siteConfig, siteDomain } from "@/config/site";
+import { validateContactPayload } from "@/lib/contact-validation";
 import { cn } from "@/lib/utils";
 
 type Status = "idle" | "submitting" | "sent" | "error";
@@ -19,12 +20,18 @@ interface ContactFields {
   name: string;
   email: string;
   topic: string;
+  company: string;
   message: string;
 }
 
 /**
  * Contact form. Submits to `contactConfig.formEndpoint` — a route handler that
  * writes to Supabase (`public.contact_messages`) — and confirms inline.
+ *
+ * Spam protection: a `website` honeypot field hidden from humans (rendered
+ * off-screen and untouchable) is silently dropped server-side. Client-side
+ * validation mirrors the server's rules so obvious mistakes never make a
+ * round-trip; the server remains authoritative.
  *
  * If no endpoint is configured, or the backend reports itself unprovisioned
  * (503), the message is handed off to the visitor's email client instead, so a
@@ -34,11 +41,13 @@ export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [delivery, setDelivery] = useState<Delivery>("api");
   const [errorNote, setErrorNote] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof ContactFields, string>>>({});
+  const honeypot = useRef<HTMLInputElement | null>(null);
 
   /** Last-resort handoff: open the visitor's mail client with the message filled in. */
   function handOffToEmail({ name, email, topic, message }: ContactFields) {
     const subject = encodeURIComponent(
-      `[${siteConfig.domain}] ${topic || "General"} — ${name}`,
+      `[${siteDomain}] ${topic || "General"} — ${name}`,
     );
     const body = encodeURIComponent(`${message}\n\n—\n${name}\n${email}`);
     setDelivery("mailto");
@@ -47,20 +56,27 @@ export function ContactForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (status === "submitting") return;
+
     const form = event.currentTarget;
     const data = new FormData(form);
     const fields: ContactFields = {
       name: String(data.get("name") ?? "").trim(),
       email: String(data.get("email") ?? "").trim(),
       topic: String(data.get("topic") ?? "").trim(),
+      company: String(data.get("company") ?? "").trim(),
       message: String(data.get("message") ?? "").trim(),
     };
 
-    if (!fields.name || !fields.email || !fields.message) {
-      setErrorNote("Please fill in your name, email, and a short message.");
+    // Client-side mirror of the server's validation (server stays authoritative).
+    const { valid, fieldErrors: errors } = validateContactPayload(fields);
+    if (!valid) {
+      setFieldErrors(errors);
+      setErrorNote("Please fix the highlighted fields and try again.");
       return;
     }
 
+    setFieldErrors({});
     setErrorNote(null);
     setStatus("submitting");
 
@@ -71,7 +87,11 @@ export function ContactForm() {
         const response = await fetch(contactConfig.formEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(fields),
+          body: JSON.stringify({
+            ...fields,
+            // Honeypot: filled only by bots; the server drops it silently.
+            website: honeypot.current?.value ?? "",
+          }),
         });
 
         if (response.ok) {
@@ -92,6 +112,14 @@ export function ContactForm() {
         "Something went wrong sending your message — please email us directly instead.",
       );
     }
+  }
+
+  function fieldError(name: keyof ContactFields) {
+    return fieldErrors[name] ? (
+      <p role="alert" className="mt-2 text-xs leading-relaxed text-ember">
+        {fieldErrors[name]}
+      </p>
+    ) : null;
   }
 
   if (status === "sent") {
@@ -139,6 +167,18 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="border border-ink/10 bg-paper p-7 md:p-10">
+      {/* Honeypot — visually removed but present in the DOM, so bots that fill
+          every field reveal themselves. Never autofocus or label it. */}
+      <input
+        ref={honeypot}
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-[9999px] h-0 w-0 opacity-0"
+      />
+
       <div className="grid gap-8 sm:grid-cols-2">
         <div>
           <label htmlFor="contact-name" className={labelClass}>
@@ -151,8 +191,10 @@ export function ContactForm() {
             autoComplete="name"
             required
             placeholder="Your name"
+            aria-invalid={Boolean(fieldErrors.name) || undefined}
             className={cn(inputClass, "mt-2")}
           />
+          {fieldError("name")}
         </div>
         <div>
           <label htmlFor="contact-email" className={labelClass}>
@@ -165,12 +207,28 @@ export function ContactForm() {
             autoComplete="email"
             required
             placeholder="you@example.com"
+            aria-invalid={Boolean(fieldErrors.email) || undefined}
+            className={cn(inputClass, "mt-2")}
+          />
+          {fieldError("email")}
+        </div>
+        <div>
+          <label htmlFor="contact-company" className={labelClass}>
+            Company{" "}
+            <span className="normal-case tracking-normal text-stone/70">(optional)</span>
+          </label>
+          <input
+            id="contact-company"
+            name="company"
+            type="text"
+            autoComplete="organization"
+            placeholder="Company or organization"
             className={cn(inputClass, "mt-2")}
           />
         </div>
-        <div className="sm:col-span-2">
+        <div>
           <label htmlFor="contact-topic" className={labelClass}>
-            Topic
+            Reason
           </label>
           <select
             id="contact-topic"
@@ -195,13 +253,15 @@ export function ContactForm() {
             required
             rows={5}
             placeholder="A few lines about what's on your mind…"
+            aria-invalid={Boolean(fieldErrors.message) || undefined}
             className={cn(inputClass, "mt-2 resize-y")}
           />
+          {fieldError("message")}
         </div>
       </div>
 
       {errorNote ? (
-        <p role="alert" className="mt-6 text-sm text-ink-soft">
+        <p role="alert" className="mt-6 text-sm text-ember">
           {errorNote}
         </p>
       ) : null}

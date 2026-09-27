@@ -54,7 +54,7 @@ export function Philosophy() {
               overlayClassName="bg-night/10"
             />
             <p className="mt-3 text-xs uppercase tracking-[0.14em] text-fog/70">
-              The desk where things get built.
+              A room to think in — and to build from.
             </p>
           </Reveal>
         </div>

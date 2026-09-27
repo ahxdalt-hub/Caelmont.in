@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { ParallaxImage } from "@/components/motion/ParallaxImage";
 import { ArrowLink } from "@/components/shared/ArrowLink";
 import { images } from "@/config/images";
-import { siteConfig } from "@/config/site";
+import { siteConfig, siteDomain } from "@/config/site";
 import { EASE } from "@/lib/motion";
 
 export function Hero() {
@@ -29,8 +29,8 @@ export function Hero() {
         travel={10}
         baseScale={1.25}
         sizes="100vw"
-        className="absolute inset-0"
-        overlayClassName="bg-gradient-to-t from-night via-night/60 to-night/30"
+        fill
+        overlayClassName="bg-gradient-to-t from-night via-night/45 to-night/10"
       />
 
       <motion.div
@@ -79,7 +79,7 @@ export function Hero() {
           variants={item}
           className="mt-12 flex items-center justify-between text-[11px] font-medium uppercase tracking-[0.2em] text-fog/70"
         >
-          <span>{siteConfig.domain}</span>
+          <span>{siteDomain}</span>
           <span className="hidden sm:inline">Four ventures · one company</span>
           <span className="flex items-center gap-3">
             Scroll

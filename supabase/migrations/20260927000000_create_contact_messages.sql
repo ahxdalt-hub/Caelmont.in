@@ -21,6 +21,7 @@ create table if not exists public.contact_messages (
   name       text not null check (char_length(name) between 1 and 120),
   email      text not null check (char_length(email) between 3 and 254),
   topic      text not null default '' check (char_length(topic) <= 120),
+  company    text not null default '' check (char_length(company) <= 160),
   message    text not null check (char_length(message) between 1 and 5000),
   user_agent text
 );
@@ -30,6 +31,9 @@ comment on table public.contact_messages is
 
 comment on column public.contact_messages.topic is
   'Free-form label chosen from src/config/contact.ts (contactConfig.topics).';
+
+comment on column public.contact_messages.company is
+  'Optional company/organization from the contact form. Empty when not provided.';
 
 comment on column public.contact_messages.user_agent is
   'Requesting User-Agent, truncated to 500 chars. Useful for spotting spam bursts.';

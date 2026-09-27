@@ -9,6 +9,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv"
@@ -32,6 +34,7 @@
     "eslint-config-next": "^15.5.0",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.8.0",
+    "vitest": "^5.0.2",
     "wrangler": "^4.141.0"
   }
 }

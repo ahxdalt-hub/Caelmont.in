@@ -3,7 +3,7 @@ import { ParallaxImage } from "@/components/motion/ParallaxImage";
 import { Reveal } from "@/components/motion/Reveal";
 import { ArrowLink } from "@/components/shared/ArrowLink";
 import { StatusPill } from "@/components/shared/StatusPill";
-import type { Venture } from "@/config/ventures";
+import { isWebsiteAvailable, type Venture } from "@/config/ventures";
 import { cn } from "@/lib/utils";
 
 interface VentureDetailProps {
@@ -125,8 +125,8 @@ export function VentureDetail({ venture, index, flip = false }: VentureDetailPro
 
             <Reveal delay={0.24} className="mt-10">
               <div className="flex flex-wrap items-center gap-4">
-                {venture.websiteUrl ? (
-                  <ArrowLink href={venture.websiteUrl} external variant="solid">
+                {isWebsiteAvailable(venture) ? (
+                  <ArrowLink href={venture.websiteUrl!} external variant="solid">
                     Visit {venture.name}
                   </ArrowLink>
                 ) : (

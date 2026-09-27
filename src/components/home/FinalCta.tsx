@@ -5,8 +5,8 @@ import { siteConfig } from "@/config/site";
 /** Shared closing CTA band, reused on multiple pages (except /contact itself). */
 export function FinalCta() {
   return (
-    <section className="relative overflow-hidden bg-night text-paper">
-      <div className="shell py-24 md:py-36">
+    <section className="closing-cta relative overflow-hidden bg-night text-paper">
+      <div className="shell relative z-10 py-24 md:py-36">
         <Reveal>
           <p className="kicker flex items-center gap-3 text-fog">
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brass" />

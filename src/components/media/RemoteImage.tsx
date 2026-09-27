@@ -1,4 +1,6 @@
+"use client";
 /* eslint-disable @next/next/no-img-element -- remote images with prebuilt srcset; Next's optimizer is disabled for Cloudflare Workers (see next.config.ts) */
+import { useState } from "react";
 import type { ImageRef } from "@/config/images";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +19,11 @@ interface RemoteImageProps {
  * Next.js image optimization is disabled for this deployment (Cloudflare
  * Workers via @opennextjs/cloudflare) — responsive sizing and modern formats
  * are handled by the remote image URLs themselves (see src/config/images.ts).
+ *
+ * If the remote image fails to load, a quiet tonal placeholder takes its
+ * place — the layout keeps its shape and no broken-image chrome is shown.
+ * An optional `focal` (object-position) from the config decides which part
+ * of the image stays in frame.
  */
 export function RemoteImage({
   image,
@@ -24,6 +31,21 @@ export function RemoteImage({
   className,
   priority = false,
 }: RemoteImageProps) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return (
+      <div
+        role="img"
+        aria-label={image.alt}
+        className={cn(
+          "h-full w-full bg-gradient-to-br from-charcoal via-stone/40 to-charcoal",
+          className,
+        )}
+      />
+    );
+  }
+
   return (
     <img
       src={image.src}
@@ -34,6 +56,8 @@ export function RemoteImage({
       fetchPriority={priority ? "high" : "auto"}
       decoding="async"
       draggable={false}
+      onError={() => setFailed(true)}
+      style={image.focal ? { objectPosition: image.focal } : undefined}
       className={cn("h-full w-full object-cover", className)}
     />
   );
