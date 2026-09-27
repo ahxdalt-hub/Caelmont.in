@@ -3,6 +3,7 @@
 
 # next.js
 /.next/
+/.next-prod/
 /out/
 next-env.d.ts
 
@@ -34,4 +35,5 @@ deploy.log
 
 # visual audit screenshots (transient)
 .audit-shots/
+.screenshots/
 

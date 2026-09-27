@@ -82,6 +82,20 @@ assets binding, per the `@opennextjs/cloudflare` preset. After the first
 deploy, add `caelmont.in` as a custom domain for the Worker in the Cloudflare
 dashboard (the zone must be on the same account).
 
+`opennextjs-cloudflare build` bundles from `.next` directly — OpenNext has no
+`distDir` support, so `NEXT_DIST_DIR` (see `next.config.ts`) is for local
+verification builds only, not for deploys. If `npm run dev` is running against
+the same checkout, its dev-mode output is still sitting in `.next` when the
+build starts and gets uploaded alongside the real assets (`static/development/`,
+`static/webpack/`, the unhashed dev chunks, `chunks/fallback/`). Nothing
+references those files, so the site is unaffected, but for a pristine bundle
+stop the dev server and clear the directory once before deploying:
+
+```bash
+# stop `npm run dev`, then:
+rm -rf .next && npm run deploy
+```
+
 ## Supabase
 
 The contact form is backed by Supabase. `ContactForm` POSTs

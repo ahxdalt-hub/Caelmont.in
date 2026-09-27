@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { FinalCta } from "@/components/home/FinalCta";
+import { ParallaxImage } from "@/components/motion/ParallaxImage";
 import { Reveal } from "@/components/motion/Reveal";
 import { FounderProfile } from "@/components/shared/FounderProfile";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { images } from "@/config/images";
 import { pageMetadata } from "@/config/seo";
 import { siteConfig } from "@/config/site";
 import { venturesInOrder } from "@/config/ventures";
@@ -17,7 +19,7 @@ export const metadata = pageMetadata({
 const beliefs = [
   "A portfolio, not a platform — every venture stands on its own.",
   "Products built around real problems, not around trends.",
-  "One company, several brands, one standard of quality.",
+  "One company, several brands — one standard of quality.",
   "Independent by design — answerable to the work itself.",
 ];
 
@@ -49,25 +51,28 @@ export default function AboutPage() {
             <Reveal>
               <div className="max-w-2xl space-y-5 text-base leading-relaxed text-ink-soft">
                 <p>
-                  CAELMONT is an independent technology company. We don&apos;t run
-                  one big platform — we build a small portfolio of software ventures,
-                  each formed around a specific problem and operated as its own brand
-                  with its own product and audience.
+                  CAELMONT is an independent technology company — not one big
+                  platform, but a small portfolio of software ventures. Each one is
+                  formed around a specific problem and operated as its own brand,
+                  with its own product and its own audience.
                 </p>
                 <p>
-                  The model is simple: spot a problem worth solving, build the
-                  smallest serious product that solves it, and keep improving it
-                  until it earns its keep. Some ventures ship fast; some take longer
-                  to get right. All of them are built to last longer than a trend
+                  The model is simple: find a problem worth solving, build the
+                  smallest serious product that solves it, then keep refining it
+                  until it earns its keep. Some ventures ship quickly; others take
+                  the time they need. All of them are built to outlast the trend
                   cycle.
                 </p>
               </div>
             </Reveal>
             <Reveal delay={0.12}>
               <ul className="mt-10 grid gap-px overflow-hidden border border-ink/10 bg-ink/10 sm:grid-cols-2">
-                {beliefs.map((line) => (
-                  <li key={line} className="bg-paper p-5 text-sm leading-relaxed text-ink-soft">
-                    {line}
+                {beliefs.map((line, i) => (
+                  <li key={line} className="bg-paper p-5">
+                    <p className="font-display text-xs font-semibold tracking-[0.18em] text-moss">
+                      {String(i + 1).padStart(2, "0")}
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-ink-soft">{line}</p>
                   </li>
                 ))}
               </ul>
@@ -76,7 +81,39 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="border-y border-ink/10 bg-ivory py-20 md:py-28">
+      {/* Full-bleed interlude — a lone ridge above the fog, carrying the page's
+          thesis. Slow scroll parallax behind a night-toned scrim. The image is
+          decorative: aria-hidden, empty alt. */}
+      <section aria-label="What we hold to" className="relative">
+        <div className="relative flex min-h-[58vh] items-end overflow-hidden bg-night text-paper md:min-h-[72vh]">
+          <ParallaxImage
+            image={{ ...images.aboutBackdrop, alt: "" }}
+            sizes="100vw"
+            fill
+            mode="panel"
+            travel={12}
+            className="opacity-90"
+            overlayClassName="bg-gradient-to-t from-night via-night/30 to-night/60"
+          />
+          <div className="shell relative z-10 pb-16 pt-44 md:pb-24 md:pt-56">
+            <Reveal>
+              <p className="kicker flex items-center gap-3 text-fog">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brass" />
+                The standard
+              </p>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <p className="mt-6 max-w-3xl font-display text-[clamp(2rem,5vw,3.8rem)] font-medium leading-[1.05] tracking-[-0.02em]">
+                Every venture is built to{" "}
+                <span className="font-serif italic text-brass">outlast</span> the
+                trend cycle.
+              </p>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-ink/10 bg-ivory py-20 md:py-28">
         <div className="shell grid gap-12 md:grid-cols-12">
           <div className="md:col-span-4">
             <Reveal>
@@ -88,23 +125,21 @@ export default function AboutPage() {
           <div className="md:col-span-8">
             <Reveal>
               <h2 className="max-w-2xl font-display text-[clamp(1.8rem,3.8vw,3rem)] font-medium leading-[1.1] tracking-tight text-ink">
-                Most software is built to win markets. We build software to{" "}
+                Most software is built to win markets. We build it to{" "}
                 <span className="font-serif italic">remove friction</span>.
               </h2>
             </Reveal>
             <Reveal delay={0.1}>
               <div className="mt-6 max-w-2xl space-y-5 text-base leading-relaxed text-ink-soft">
                 <p>
-                  Somewhere between the bloated all-in-one suites and the weekend
-                  experiments, there&apos;s a gap: focused tools, built seriously,
-                  that do exactly what they promise. That gap is where every CAELMONT
-                  venture lives.
+                  Between the bloated all-in-one suites and the weekend experiments
+                  lies a gap: focused tools, built seriously, that do exactly what
+                  they promise. Every CAELMONT venture lives in that gap.
                 </p>
                 <p>
-                  Being independent keeps that honest. There&apos;s no investor deck
-                  to feed and no quarterly narrative to serve — a product either
-                  works for the people using it, or we keep working on it until it
-                  does.
+                  Independence keeps that honest. There&apos;s no investor deck to
+                  feed and no quarterly narrative to serve — a product either works
+                  for the people using it, or we keep working on it until it does.
                 </p>
               </div>
             </Reveal>
@@ -145,8 +180,8 @@ export default function AboutPage() {
             <Reveal delay={0.1}>
               <p className="mt-8 max-w-2xl text-base leading-relaxed text-stone">
                 The founder&apos;s name, background, and links will be published
-                here — together with the story of how CAELMONT&apos;s ventures came
-                to be. Until then, the work speaks first.
+                here, along with the story of how CAELMONT&apos;s ventures came to
+                be. Until then, the work speaks first.
               </p>
             </Reveal>
           </div>
@@ -157,4 +192,3 @@ export default function AboutPage() {
     </>
   );
 }
-

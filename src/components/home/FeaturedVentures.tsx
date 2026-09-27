@@ -4,13 +4,26 @@ import { Reveal } from "@/components/motion/Reveal";
 import { ArrowLink } from "@/components/shared/ArrowLink";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { StatusPill } from "@/components/shared/StatusPill";
+import { images } from "@/config/images";
 import { featuredVentures, type Venture } from "@/config/ventures";
 import { cn } from "@/lib/utils";
 
 export function FeaturedVentures() {
   return (
-    <section className="border-y border-ink/10 bg-ivory py-24 md:py-32">
-      <div className="shell">
+    <section className="relative overflow-hidden border-y border-ink/10 bg-ivory py-24 md:py-32">
+      {/* Atmosphere backdrop — slow scroll parallax, deliberately faint so the
+          venture panels stay the focus. Decorative: aria-hidden. */}
+      <div aria-hidden="true" className="absolute inset-0 z-0">
+        <ParallaxImage
+          image={images.venturesBackdrop}
+          sizes="100vw"
+          fill
+          travel={10}
+          className="opacity-20"
+          overlayClassName="bg-gradient-to-b from-ivory via-ivory/50 to-ivory"
+        />
+      </div>
+      <div className="shell relative z-10">
         <div className="flex flex-wrap items-end justify-between gap-8">
           <SectionHeading
             index="02"

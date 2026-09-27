@@ -68,6 +68,67 @@ export const images = {
     "A laptop and mouse on a warm walnut desk beside a dark chair",
     { widths: [900, 1400, 2000, 2400], overlay: "dark" },
   ),
+  /**
+   * Ventures-section backdrop — low-angle modern architecture, echoing the
+   * hero's visual language. Rendered at low opacity behind the home page's
+   * featured ventures with a slow scroll parallax, so the portfolio reads as
+   * one composed surface. Decorative only: it is marked aria-hidden at the
+   * render site.
+   */
+  venturesBackdrop: unsplash(
+    "photo-1486406146926-c627a92ad1ab",
+    "Low-angle view of a modern glass office tower against a bright sky",
+    { widths: [900, 1400, 2000, 2600] },
+  ),
+  /**
+   * About-page interlude — a single forested ridge standing clear of the fog,
+   * echoing the page's "Independent, on purpose" thesis. Rendered full-bleed
+   * behind the pull-quote with a slow scroll parallax and a night-toned scrim
+   * so the overlaid text stays readable. Decorative only: it is marked
+   * aria-hidden and given an empty alt at the render site.
+   */
+  aboutBackdrop: unsplash(
+    "photo-1470071459604-3b5ec3a7fe05",
+    "A forested mountain ridge rising above a sea of fog at sunrise",
+    { widths: [900, 1400, 2000, 2600], focal: "50% 62%", overlay: "dark" },
+  ),
+  /**
+   * Brands-page backdrop — a pale concrete facade fading into sky, matching
+   * the hero's architectural language. Rendered at low opacity behind the
+   * whole /brands page with a slow scroll parallax, so the four venture
+   * sections read as one composed surface. Decorative only: it is marked
+   * aria-hidden and given an empty alt at the render site.
+   */
+  brandsBackdrop: unsplash(
+    "photo-1487958449943-2429e8be8625",
+    "A low-angle view of a pale concrete building facade against the sky",
+    { widths: [900, 1400, 2000, 2600] },
+  ),
+  /**
+   * Approach-page backdrop — a soft sand dune in warm beige, tonally matched
+   * to the site's paper/sand palette. Rendered very faintly behind the whole
+   * /approach page with a slow scroll parallax: texture enough to feel
+   * designed, never enough to pull focus from the copy. Decorative only: it
+   * is marked aria-hidden and given an empty alt at the render site.
+   */
+  approachBackdrop: unsplash(
+    "photo-1473580044384-7ba9967e16a0",
+    "Soft ripples of sand on a desert dune in warm morning light",
+    { widths: [900, 1400, 2000, 2600], focal: "50% 60%" },
+  ),
+  /**
+   * Approach-page interlude — sunlight through a quiet stand of tall trees:
+   * calm, unhurried, nothing shouting for attention. The visual counterpart
+   * to "useful over noisy". Rendered full-bleed behind the night-toned
+   * pull-quote with a slow scroll parallax, where the image is the focal
+   * point rather than background. Decorative only: it is marked aria-hidden
+   * and given an empty alt at the render site.
+   */
+  approachInterlude: unsplash(
+    "photo-1441974231531-c6227db76b6e",
+    "Sunlight falling through tall trees in a quiet forest",
+    { widths: [900, 1400, 2000, 2600], focal: "50% 45%", overlay: "dark" },
+  ),
   ventures: {
     /**
      * Business systems · software — the product itself, running. Veyra's card

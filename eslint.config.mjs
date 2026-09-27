@@ -15,6 +15,13 @@ const eslintConfig = [
     ignores: [
       "node_modules/**",
       ".next/**",
+      /*
+       * Production verification builds set NEXT_DIST_DIR=.next-prod (see
+       * next.config.ts). Both dist directories are generated output and are
+       * linted as bundles, which produces thousands of false positives, so
+       * each one needs its own ignore entry.
+       */
+      ".next-prod/**",
       ".open-next/**",
       ".wrangler/**",
       "out/**",

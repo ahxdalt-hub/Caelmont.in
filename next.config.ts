@@ -23,6 +23,12 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  /*
+   * Allow production verification builds to use a separate output directory
+   * (NEXT_DIST_DIR=.next-prod) so a running dev server on the shared .next
+   * directory cannot corrupt the build, and vice versa.
+   */
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
