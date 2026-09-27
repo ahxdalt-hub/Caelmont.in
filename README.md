@@ -31,6 +31,7 @@ npm run dev
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint (flat config, `next/core-web-vitals`) |
 | `npm run typecheck` | `tsc --noEmit` |
+| `npm run test` | Unit tests (vitest — validation, rate limiting, config invariants) |
 | `npm run cf-typegen` | Generate `worker-configuration.d.ts` via `wrangler types` |
 | `npm run preview` | Build + local Cloudflare Workers preview (`opennextjs-cloudflare build && opennextjs-cloudflare preview`) |
 | `npm run deploy` | Build + deploy to Cloudflare Workers |
@@ -46,7 +47,10 @@ npm run dev
 | `src/config/approach.ts` | The six principles |
 | `src/config/updates.ts` | Company updates feed (empty by design) |
 | `src/config/contact.ts` | Contact form topics + backend endpoint |
+| `src/config/analytics.ts` | Analytics provider — **off by default**, cookieless providers only |
 | `src/config/seo.ts` | Shared metadata builder (canonical + OG/Twitter) |
+| `src/lib/contact-validation.ts` | Shared contact rules (client pre-flight + server-authoritative) |
+| `src/lib/rate-limit.ts` | In-memory fixed-window rate limiter for the contact endpoint |
 | `src/lib/supabase/` | Supabase clients — `env.ts`/`client.ts`/`server.ts` (public key) + `admin.ts` (secret key, **server only**) |
 | `src/app/api/contact/route.ts` | Contact-form backend — validates, then inserts into `public.contact_messages` |
 | `supabase/migrations/` | SQL migrations (apply through the dashboard SQL editor) |
@@ -81,8 +85,14 @@ dashboard (the zone must be on the same account).
 ## Supabase
 
 The contact form is backed by Supabase. `ContactForm` POSTs
-`{ name, email, topic, message }` to `src/app/api/contact/route.ts`, which
-validates the payload and inserts a row into `public.contact_messages`.
+`{ name, email, topic, company, message, website }` to
+`src/app/api/contact/route.ts`, which validates the payload and inserts a row
+into `public.contact_messages`. (`website` is a honeypot: any value means a bot,
+and the submission is dropped with a fake success response.) Spam protection
+layers: honeypot, per-IP rate limiting (5 requests / 10 min, in-memory per
+Worker isolate — IP addresses are used transiently for the limiter and never
+stored), length caps, and shared validation rules from
+`src/lib/contact-validation.ts`.
 
 ### 1. Environment variables
 
@@ -91,11 +101,16 @@ Copy `.env.example` to `.env.local` and fill in the values from
 
 | Variable | Purpose |
 | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL override (staging); default `https://caelmont.in` |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Public contact email override; default `Caelmontholding@gmail.com` |
 | `NEXT_PUBLIC_SUPABASE_URL` | Project URL, e.g. `https://<ref>.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` — browser-safe |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Legacy `anon` JWT — fallback for older projects |
 | `SUPABASE_SECRET_KEY` | `sb_secret_…` — **server only** |
 | `SUPABASE_SERVICE_ROLE_KEY` | Legacy `service_role` JWT — fallback, **server only** |
+| `NEXT_PUBLIC_ANALYTICS_PROVIDER` | `plausible` / `umami`, or empty for no analytics |
+| `NEXT_PUBLIC_ANALYTICS_DOMAIN` | Domain registered with the analytics provider |
+| `NEXT_PUBLIC_UMAMI_SCRIPT_URL` / `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Umami tracker settings |
 
 `src/lib/supabase/env.ts` prefers the publishable/secret pair and falls back to
 the legacy JWTs, so either key generation works. The secret key is read only in
@@ -104,12 +119,16 @@ the legacy JWTs, so either key generation works. The secret key is read only in
 
 ### 2. Create the table
 
-New Supabase projects start with an empty database, so apply the migration once
-(Supabase dashboard → **SQL Editor** → paste → Run):
+New Supabase projects start with an empty database, so apply the migrations
+once (Supabase dashboard → **SQL Editor** → paste → Run), in order:
 
 ```
 supabase/migrations/20260927000000_create_contact_messages.sql
+supabase/migrations/20260927010000_add_company_to_contact_messages.sql
 ```
+
+(The second is only needed for databases where the first was already applied
+before the `company` column existed; both are idempotent.)
 
 `contact_messages` ships with Row Level Security **enabled and zero policies**,
 so the publishable/anon key can neither read nor write; only the server route
@@ -144,11 +163,27 @@ Two `@opennextjs/cloudflare` behaviours are worth knowing:
   inlines non-`NEXT_PUBLIC_` variables, and OpenNext only reads secrets from
   `.env*` *files*, so nothing gets baked in.
 
+## Analytics
+
+Analytics are **off by default** — the site is fully functional without them
+and loads nothing. To enable, set `NEXT_PUBLIC_ANALYTICS_PROVIDER` (and the
+provider-specific variables — see `.env.example`); `src/components/analytics/
+Analytics.tsx` then loads the provider's cookieless script after hydration.
+The `/privacy` page reads `src/config/analytics.ts` and updates its disclosure
+automatically. Only cookieless providers are supported; if a cookie-setting
+provider is ever added, a consent gate must come first.
+
 ## Phase 2 notes
 
 - **Founder profile**: fill `src/config/founder.ts` (name, bio, portrait URL,
   social links) — the `FounderProfile` component degrades gracefully while
   anything is empty (monogram placeholder, no fake links).
+- **Legal suffix**: set `siteConfig.legalSuffix` in `src/config/site.ts` once
+  the entity registration decision is made — it stays `null` (nothing rendered)
+  until then.
+- **Product websites**: set `websiteUrl` on a venture in `src/config/ventures.ts`
+  the day a real product site goes live; until then every venture shows its
+  coming-soon state.
 
 ## Content integrity
 

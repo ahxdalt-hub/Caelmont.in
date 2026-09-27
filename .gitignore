@@ -23,6 +23,7 @@ worker-configuration.d.ts
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+deploy.log
 
 # env files
 .env*
@@ -30,3 +31,7 @@ yarn-error.log*
 
 # cloudflare local dev secrets (wrangler loads this for `npm run preview`)
 .dev.vars
+
+# visual audit screenshots (transient)
+.audit-shots/
+
