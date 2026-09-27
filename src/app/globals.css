@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens.
+ *
+ * Palette: warm paper/ivory surfaces, deep charcoal-ink text, a moss green
+ * as the single restrained accent, and brass/gold reserved for the smallest
+ * possible moments (a dot, an underline). Dark sections use "night".
+ */
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument), ui-serif, Georgia, serif;
+}
+
+@theme {
+  --color-paper: #faf7f1;
+  --color-ivory: #f2ede2;
+  --color-sand: #e7dfd0;
+  --color-ink: #17130c;
+  --color-charcoal: #2c2620;
+  --color-ink-soft: #4a443a;
+  --color-stone: #655e52;
+  --color-fog: #a89f8f;
+  --color-moss: #2f4b3b;
+  --color-fern: #6d9078;
+  --color-brass: #a8873c;
+  --color-night: #131009;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-brass) 32%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brass);
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Shared page gutter — one source of truth for horizontal rhythm. */
+  .shell {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 76rem;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .shell {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* Small-caps editorial label. */
+  .kicker {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* Accessibility: skip link, visible on keyboard focus. */
+  .skip-link {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
+    border-radius: 9999px;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    transform: translateY(-300%);
+    transition: transform 0.25s ease;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+}
