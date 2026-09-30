@@ -80,22 +80,28 @@ npm run deploy     # requires wrangler login + a Cloudflare account
 
 `wrangler.jsonc` targets `.open-next/worker.js` with `nodejs_compat` and an
 assets binding, per the `@opennextjs/cloudflare` preset, and declares both
-production hostnames as zone routes:
+production hostnames as Custom Domains:
 
 | Hostname | Behaviour |
 | --- | --- |
 | `caelmont.in` | Canonical origin — everything the site publishes points here |
 | `www.caelmont.in` | 308-redirects to the apex (`src/middleware.ts`) |
 
-Routes rather than Custom Domains, deliberately: the apex and `www` carry
-hosting-provider parking DNS records that Cloudflare treats as externally
-managed, and a Custom Domain cannot be attached over an existing record (API
-error `100117`). A route only needs a proxied record — both exist — and this
-Worker answers every request before that origin is reached, so the parking page
-is never served. Once the parking records are deleted (dashboard →
-**caelmont.in** → **DNS** → **Records**), swap `routes` for the
-`custom_domain: true` form shown in `wrangler.jsonc`, where Cloudflare owns the
-records and the certificate; no other change is needed.
+`custom_domain: true` makes the Worker the origin for the hostname, so Cloudflare
+creates and owns the DNS record (an originless `AAAA 100::` placeholder, marked
+read-only against the Custom Domain) and the TLS certificate. The registrar's
+parking records had to be **deleted** first: a Custom Domain cannot be created
+over an existing record — API error `100117`, "already has externally managed DNS
+records" — and repointing that record somewhere else does not clear the
+classification. If a hostname's records cannot be removed, a zone route over a
+proxied record is the workable fallback:
+
+```jsonc
+"routes": [
+  { "pattern": "caelmont.in/*", "zone_name": "caelmont.in" },
+  { "pattern": "www.caelmont.in/*", "zone_name": "caelmont.in" }
+],
+```
 
 Both hostnames must be in the same Cloudflare account as the Worker.
 `workers_dev` and `preview_urls` are **off**, so `caelmont.ahxd.workers.dev`

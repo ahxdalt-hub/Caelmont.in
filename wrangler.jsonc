@@ -13,25 +13,26 @@
    * Production hostnames — the apex is canonical, `www` 308-redirects to it
    * (`src/middleware.ts`).
    *
-   * Zone routes rather than Custom Domains on purpose: the apex and `www` still
-   * carry hosting-provider parking DNS records that Cloudflare treats as
-   * externally managed, and a Custom Domain cannot be attached over an existing
-   * record (API error 100117). A route only needs a proxied record — both
-   * already exist — and this Worker answers every request before that origin is
-   * reached, so the parking page is never served.
+   * `custom_domain: true` makes this Worker the origin for the hostname:
+   * Cloudflare creates and owns the DNS record (an originless `AAAA 100::`
+   * placeholder, marked read-only against the Custom Domain) and the TLS
+   * certificate, so neither has to be maintained by hand. Both hostnames must
+   * live in the same Cloudflare account as this Worker.
    *
-   * Once the parking records are deleted (dashboard → caelmont.in → DNS →
-   * Records), swap this block for the cleaner Custom Domain form, where
-   * Cloudflare owns the DNS records and the certificate:
+   * The registrar's parking records had to be deleted first — a Custom Domain
+   * cannot be created over an existing record (API error 100117, "already has
+   * externally managed DNS records"), and pointing that record somewhere new
+   * does not clear the classification. Where such records cannot be removed, a
+   * zone route over a proxied record is the workable fallback:
    *
    *   "routes": [
-   *     { "pattern": "caelmont.in", "custom_domain": true },
-   *     { "pattern": "www.caelmont.in", "custom_domain": true }
+   *     { "pattern": "caelmont.in/*", "zone_name": "caelmont.in" },
+   *     { "pattern": "www.caelmont.in/*", "zone_name": "caelmont.in" }
    *   ],
    */
   "routes": [
-    { "pattern": "caelmont.in/*", "zone_name": "caelmont.in" },
-    { "pattern": "www.caelmont.in/*", "zone_name": "caelmont.in" }
+    { "pattern": "caelmont.in", "custom_domain": true },
+    { "pattern": "www.caelmont.in", "custom_domain": true }
   ],
   /*
    * Single public surface. `<worker>.workers.dev` and versioned Preview URLs are
