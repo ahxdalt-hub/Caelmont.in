@@ -51,6 +51,7 @@ npm run dev
 | `src/config/seo.ts` | Shared metadata builder (canonical + OG/Twitter) |
 | `src/lib/contact-validation.ts` | Shared contact rules (client pre-flight + server-authoritative) |
 | `src/lib/rate-limit.ts` | In-memory fixed-window rate limiter for the contact endpoint |
+| `src/middleware.ts` + `src/lib/canonical-host.ts` | Canonical host — `www` → apex and HTTP → HTTPS redirects |
 | `src/lib/supabase/` | Supabase clients — `env.ts`/`client.ts`/`server.ts` (public key) + `admin.ts` (secret key, **server only**) |
 | `src/app/api/contact/route.ts` | Contact-form backend — validates, then inserts into `public.contact_messages` |
 | `supabase/migrations/` | SQL migrations (apply through the dashboard SQL editor) |
@@ -78,9 +79,32 @@ npm run deploy     # requires wrangler login + a Cloudflare account
 ```
 
 `wrangler.jsonc` targets `.open-next/worker.js` with `nodejs_compat` and an
-assets binding, per the `@opennextjs/cloudflare` preset. After the first
-deploy, add `caelmont.in` as a custom domain for the Worker in the Cloudflare
-dashboard (the zone must be on the same account).
+assets binding, per the `@opennextjs/cloudflare` preset, and declares both
+production hostnames as zone routes:
+
+| Hostname | Behaviour |
+| --- | --- |
+| `caelmont.in` | Canonical origin — everything the site publishes points here |
+| `www.caelmont.in` | 308-redirects to the apex (`src/middleware.ts`) |
+
+Routes rather than Custom Domains, deliberately: the apex and `www` carry
+hosting-provider parking DNS records that Cloudflare treats as externally
+managed, and a Custom Domain cannot be attached over an existing record (API
+error `100117`). A route only needs a proxied record — both exist — and this
+Worker answers every request before that origin is reached, so the parking page
+is never served. Once the parking records are deleted (dashboard →
+**caelmont.in** → **DNS** → **Records**), swap `routes` for the
+`custom_domain: true` form shown in `wrangler.jsonc`, where Cloudflare owns the
+records and the certificate; no other change is needed.
+
+Both hostnames must be in the same Cloudflare account as the Worker.
+`workers_dev` and `preview_urls` are **off**, so `caelmont.ahxd.workers.dev`
+answers nothing at all — `caelmont.in` is the only surface serving the site.
+Redirects live in the app (`src/middleware.ts`) rather than a dashboard rule, so
+`www` handling is version-controlled and testable: `www.` and plain-HTTP requests
+on the production hostnames land on `https://caelmont.in`, while localhost and
+preview hostnames are untouched. Enabling **Always Use HTTPS** in the zone's
+SSL/TLS settings does the same at the edge, before the Worker runs.
 
 `opennextjs-cloudflare build` bundles from `.next` directly — OpenNext has no
 `distDir` support, so `NEXT_DIST_DIR` (see `next.config.ts`) is for local

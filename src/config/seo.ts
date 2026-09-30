@@ -11,7 +11,14 @@ interface PageMetaInput {
   image?: string;
 }
 
-/** Shared metadata builder so every page ships canonical + OG/Twitter tags. */
+/**
+ * Shared metadata builder so every page ships canonical + OG/Twitter tags.
+ *
+ * `title` is spread in only when the page supplies one. Returning
+ * `title: undefined` from a page's `metadata` is not the same as omitting it —
+ * it overrides the layout's `title.default` and strips the `<title>` element
+ * from the document, which is what the home page relies on.
+ */
 export function pageMetadata({ title, description, path = "", image }: PageMetaInput = {}): Metadata {
   const url = `${siteConfig.url}${path}`;
   const fullTitle = title
@@ -21,7 +28,7 @@ export function pageMetadata({ title, description, path = "", image }: PageMetaI
   const img = image ?? ogImage.src;
 
   return {
-    title,
+    ...(title ? { title } : {}),
     description: desc,
     alternates: { canonical: url },
     openGraph: {

@@ -8,6 +8,7 @@ import {
 import { images } from "@/config/images";
 import { founderConfig } from "@/config/founder";
 import { siteConfig, siteDomain } from "@/config/site";
+import { pageMetadata } from "@/config/seo";
 import { isAnalyticsEnabled } from "@/config/analytics";
 
 /**
@@ -27,6 +28,23 @@ describe("site config", () => {
 
   it("ships no analytics by default", () => {
     expect(isAnalyticsEnabled()).toBe(false);
+  });
+});
+
+describe("shared page metadata", () => {
+  it("leaves the title to the layout when a page does not name itself", () => {
+    // An explicit `title: undefined` overrides the layout's `title.default`
+    // and removes the <title> element from the document, so the key must be
+    // absent — not blank — for untitled pages (the home page).
+    expect("title" in pageMetadata()).toBe(false);
+    expect("title" in pageMetadata({ description: siteConfig.description })).toBe(false);
+  });
+
+  it("titles and canonically links a named page", () => {
+    const meta = pageMetadata({ title: "About", path: "/about" });
+    expect(meta.title).toBe("About");
+    expect(meta.alternates?.canonical).toBe(`${siteConfig.url}/about`);
+    expect(meta.openGraph?.title).toBe(`About — ${siteConfig.name}`);
   });
 });
 
