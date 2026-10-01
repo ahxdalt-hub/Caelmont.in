@@ -20,6 +20,16 @@ export const siteConfig = {
     "An independent technology company building focused software products and ventures.",
   description:
     "CAELMONT is an independent technology company building focused software products and ventures around useful technology and real-world problems.",
+  /**
+   * Home-page search & social metadata. Kept deliberately separate from
+   * `tagline` and `description`, which render as visible copy (hero, footer,
+   * and about lead) — so the search/social snippet can be tuned without
+   * changing any on-page text.
+   */
+  seoTitle: "CAELMONT | Independent Software Products & Ventures",
+  seoDescription:
+    "CAELMONT is an independent technology company building focused software products and ventures across business systems, B2B sales intelligence, and AI software.",
+
   /** Provisional contact address — configurable, replace when a dedicated inbox exists. */
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "Caelmontholding@gmail.com",
   /**

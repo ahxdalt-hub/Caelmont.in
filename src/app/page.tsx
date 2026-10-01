@@ -7,7 +7,10 @@ import { Philosophy } from "@/components/home/Philosophy";
 import { siteConfig } from "@/config/site";
 import { pageMetadata } from "@/config/seo";
 
-export const metadata = pageMetadata({ description: siteConfig.description });
+export const metadata = pageMetadata({
+  absoluteTitle: siteConfig.seoTitle,
+  description: siteConfig.seoDescription,
+});
 
 export default function HomePage() {
   return (

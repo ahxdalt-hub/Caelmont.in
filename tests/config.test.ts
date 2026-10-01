@@ -35,7 +35,7 @@ describe("shared page metadata", () => {
   it("leaves the title to the layout when a page does not name itself", () => {
     // An explicit `title: undefined` overrides the layout's `title.default`
     // and removes the <title> element from the document, so the key must be
-    // absent — not blank — for untitled pages (the home page).
+    // absent — not blank — for any page that does not name itself.
     expect("title" in pageMetadata()).toBe(false);
     expect("title" in pageMetadata({ description: siteConfig.description })).toBe(false);
   });
@@ -46,6 +46,21 @@ describe("shared page metadata", () => {
     expect(meta.alternates?.canonical).toBe(`${siteConfig.url}/about`);
     expect(meta.openGraph?.title).toBe(`About — ${siteConfig.name}`);
   });
+
+  it("brands the home page with an exact, standalone title", () => {
+    const meta = pageMetadata({
+      absoluteTitle: siteConfig.seoTitle,
+      description: siteConfig.seoDescription,
+    });
+    expect(meta.title).toEqual({ absolute: siteConfig.seoTitle });
+    expect(meta.description).toBe(siteConfig.seoDescription);
+    expect(meta.alternates?.canonical).toBe(siteConfig.url);
+    expect(meta.openGraph?.title).toBe(siteConfig.seoTitle);
+    expect(meta.openGraph?.description).toBe(siteConfig.seoDescription);
+    expect(meta.twitter?.title).toBe(siteConfig.seoTitle);
+    expect(meta.twitter?.description).toBe(siteConfig.seoDescription);
+  });
+
 });
 
 describe("ventures config", () => {
